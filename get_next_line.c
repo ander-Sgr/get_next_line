@@ -13,18 +13,29 @@
 #include "get_next_line.h"
 #include <stdio.h>
 
-char	*get_next_line(int fd)
+static char	*ft_read_file(int fd)
 {
-	int		bytes_read;
-	char	*buffer;
+	char		*buffer;
+	int			bytes_read;
 
-	buffer = ft_calloc(5 + 1, sizeof(char));
+	buffer = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
 	if (!buffer)
 		return (NULL);
-	bytes_read = read(fd, buffer, 5);
+	bytes_read = read(fd, buffer, BUFFER_SIZE);
 	if (bytes_read <= 0)
+	{
+		free(buffer);
 		return (NULL);
+	}
 	return (buffer);
+}
+
+char	*get_next_line(int fd)
+{
+	char	*line;
+
+	line = ft_read_file(fd);
+	return (line);
 }
 
 int	main(void)
@@ -35,19 +46,19 @@ int	main(void)
 
 	count = 0;
 	fd = open("test.txt", O_RDONLY);
-    if (fd == -1)
-    {
-        printf("error open file");
-        return(1);
-    }
+	if (fd == -1)
+	{
+		printf("error open file");
+		return (1);
+	}
 	while (1)
 	{
 		next_line = get_next_line(fd);
 		if (next_line == NULL)
 			break ;
 		count++;
-		printf("[%d]:%s\n", count, next_line);
-        free(next_line);
+		printf("%s\n",next_line);
+		free(next_line);
 		next_line = NULL;
 	}
 	close(fd);
