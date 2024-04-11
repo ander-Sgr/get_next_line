@@ -25,6 +25,6 @@ char	*get_next_line(int fd);
 size_t	ft_strlen(char const *str);
 char	*ft_strchr(char const *str, int c);
 char	*ft_strjoin(char *buffer, const char *content);
-char	*ft_strdup(const char *str);
+size_t	ft_strlcpy(char *dst, const char *src, size_t size);
 
 #endif
