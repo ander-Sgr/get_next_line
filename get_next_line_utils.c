@@ -17,75 +17,76 @@ size_t	ft_strlen(char const *str)
 	size_t	i;
 
 	i = 0;
-	while (*(str + i))
+	if (str == NULL)
+		return (0);
+	while (str[i] != '\0')
 		i++;
 	return (i);
 }
 
-char	*ft_strchr(char const *str, int c)
+char	*ft_strchr(const char *s, int c)
 {
-	if (!str)
+	int	i;
+
+	i = 0;
+	if (s == NULL)
 		return (NULL);
-	while (*str)
+	while (s[i] != '\0')
 	{
-		if (*str == (char)c)
-			return ((char *)str);
-		str++;
+		if (s[i] == (char)c)
+		{
+			return ((char *)&s[i]);
+		}
+		i++;
 	}
-	if (*str == (char)c)
-		return ((char *)str);
-	else
-		return (NULL);
+	if (s[i] == (char)c)
+		return ((char *)&s[i]);
+	return (NULL);
 }
 
-char	*ft_strcpy(char *dest, const char *src)
+size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 {
-	char	*dest_start;
+	size_t	size_src;
+	size_t	i;
 
-	dest_start = dest;
-	while (*src)
-		*dest++ = *src++;
-	*dest = '\0';
-	return (dest_start);
+	if (size == 0)
+		return (ft_strlen(src));
+	i = 0;
+	while (i < (size - 1) && src[i] != '\0')
+	{
+		dst[i] = src[i];
+		i++;
+	}
+	dst[i] = '\0';
+	size_src = ft_strlen(src);
+	return (size_src);
 }
 
-char	*ft_strdup(const char *src)
+char	*ft_strjoin(char *s1, char const *s2)
 {
-	size_t	len;
-	char	*dest;
+	char	*join;
+	size_t	i;
+	size_t	j;
 
-	len = ft_strlen(src);
-	dest = (char *)malloc(sizeof(char) * (len + 1));
-	if (!dest)
+	if (!s1)
+	{
+		s1 = (char *)malloc(1 * sizeof(char));
+		s1[0] = '\0';
+	}
+	join = (char *)malloc((ft_strlen(s1) + ft_strlen(s2) + 1) * sizeof(char));
+	if (join == NULL)
 		return (NULL);
-	return (ft_strcpy(dest, src));
-}
-
-char	*ft_strjoin(char *buffer, const char *content)
-{
-	size_t	buffer_len;
-	size_t	content_len;
-	char	*result;
-	char	*result_ptr;
-	char	*src;
-
-	buffer_len = 0;
-	if (!buffer && !content)
-		return (NULL);
-	if (buffer)
-		buffer_len = ft_strlen(buffer);
-	content_len = ft_strlen(content);
-	result = (char *)malloc(sizeof(char) * (buffer_len + content_len + 1));
-	if (!result)
-		return (NULL);
-	result_ptr = result;
-	src = buffer;
-	while (src && *src)
-		*result_ptr++ = *src++;
-	src = (char *)content;
-	while (src && *src)
-		*result_ptr++ = *src++;
-	*result_ptr = '\0';
-	free(buffer);
-	return (result);
+	i = -1;
+	while (s1[++i] != '\0')
+		join[i] = s1[i];
+	j = 0;
+	while (s2[j] != '\0')
+	{
+		join[i] = s2[j];
+		i++;
+		j++;
+	}
+	join[i] = '\0';
+	free(s1);
+	return (join);
 }
