@@ -15,28 +15,42 @@
 #include <stdio.h>
 #include <string.h>
 
+static int	ft_get_linebreak(char *buffer)
+{
+	int	i;
+
+	i = 0;
+	while (buffer[i] && buffer[i] != '\n')
+		i++;
+	if (buffer[i] == '\n')
+		i++;
+	return (i);
+}
+
 static char	*ft_next_ln(char *buffer)
 {
 	char	*line;
 	int		i;
 	int		len;
 
-	i = 0;
-	len = 0;
-	if (buffer[i] == '\0' || buffer == NULL)
+	if (!buffer || *buffer == '\0')
+		return (NULL);
+	i = ft_get_linebreak(buffer);
+	if (!buffer[i])
+	{
+		line = NULL;
 		return (free(buffer), NULL);
-	while (buffer[i] && buffer[i] != '\n')
-		i++;
-	if (buffer[i] == '\n')
-		i++;
+	}
+	len = 0;
 	while (buffer[i + len])
 		len++;
 	line = (char *)malloc(len + 1);
 	if (line == NULL)
-		return (free(line), NULL);
+	{
+		free(buffer);
+		return (NULL);
+	}
 	ft_strlcpy(line, buffer + i, len + 1);
-	if (!*line)
-		return (free(buffer), free(line), NULL);
 	free(buffer);
 	return (line);
 }
@@ -49,9 +63,8 @@ static char	*ft_read_line(char *buffer)
 	i = 0;
 	if (!buffer || buffer[i] == '\0')
 		return (NULL);
-	while (buffer[i] && buffer[i] != '\n')
-		i++;
-	line = (char *)malloc(sizeof(char) * (i + 2));
+	i = ft_get_linebreak(buffer);
+	line = (char *)malloc(sizeof(char) * (i + 1));
 	if (line == NULL)
 		return (NULL);
 	i = 0;
@@ -77,22 +90,23 @@ static char	*ft_read_file(int fd, char *buffer)
 	read_bytes = 1;
 	content_file = (char *)malloc(sizeof(char) * BUFFER_SIZE + 1);
 	if (content_file == NULL)
-		return (NULL);
-	while (!(ft_strchr(buffer, '\n')) && read_bytes != 0)
+		return (free(buffer), NULL);
+	content_file[0] = '\0';
+	while (!(ft_strchr(buffer, '\n')) && read_bytes > 0)
 	{
 		read_bytes = read(fd, content_file, BUFFER_SIZE);
-		if (read_bytes == -1)
+		if (read_bytes > 0)
 		{
-			return (free(content_file), free(buffer), NULL);
+			content_file[read_bytes] = '\0';
+			buffer = ft_strjoin(buffer, content_file);
 		}
-		content_file[read_bytes] = '\0';
-		buffer = ft_strjoin(buffer, content_file);
 	}
 	free(content_file);
+	if (read_bytes == -1)
+		return (free(buffer), NULL);
 	return (buffer);
 }
 
-// Función principal get_next_line
 char	*get_next_line(int fd)
 {
 	static char	*read_buffer;
@@ -104,7 +118,13 @@ char	*get_next_line(int fd)
 	if (!read_buffer)
 		return (NULL);
 	line = ft_read_line(read_buffer);
-	read_buffer = ft_next_ln(read_buffer);
+	if (!line)
+	{
+		free(read_buffer);
+		read_buffer = NULL;
+	}
+	else
+		read_buffer = ft_next_ln(read_buffer);
 	return (line);
 }
 
